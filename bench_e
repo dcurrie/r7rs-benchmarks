@@ -33,7 +33,7 @@ OSNAME="`( uname )`"
 # CPU_LIMIT=3600
 
 # ecraven changed this to 5 minutes
-CPU_LIMIT=${CPU_LIMIT:-"300"}
+CPU_LIMIT=${CPU_LIMIT:-"900"}
 
 # The following definitions are not in use, but using them
 # might improve the script.
@@ -71,7 +71,7 @@ KVW_BENCHMARKS="ack array1 string sum1 cat tail wc"
 
 IO_BENCHMARKS="read1"
 
-OTHER_BENCHMARKS="compiler conform dynamic earley graphs lattice matrix maze mazefun nqueens paraffins parsing peval primes quicksort scheme slatex chudnovsky"
+OTHER_BENCHMARKS="compiler conform dynamic earley graphs lattice matrix maze mazefun nqueens paraffins parsing peval primes quicksort scheme slatex"
 
 GC_BENCHMARKS="nboyer sboyer gcbench mperm"
 
@@ -113,7 +113,6 @@ setup ()
     CHICKEN_CSC=${CHICKEN_CSC:-"csc"}
     CHICKEN_CSI=${CHICKEN_CSI:-"csi"}
     CYCLONE=${CYCLONE:-"cyclone"}
-    FEMTOLISP=${FEMTOLISP:-"./flisp"}
     FOMENT=${FOMENT:-"foment"}
     GAMBITC=${GAMBITC:-"gambitc"}
     GAUCHE=${GAUCHE:-"gosh"}
@@ -230,7 +229,6 @@ evaluate ()
         make_src_code $1
         echo Compiling...
         ulimit -t ${CPU_LIMIT}
-        echo $COMP "${TEMP}/$1.${EXTENSION}" "${TEMP}/$1.${EXTENSIONCOMP}"
         $COMP "${TEMP}/$1.${EXTENSION}" "${TEMP}/$1.${EXTENSIONCOMP}"
         if [ $? -ne 0 ]
         then
@@ -296,7 +294,7 @@ larceny_comp ()
 larceny_exec ()
 {
     # add srfi 112 for (implementation-version)
-    sed -i 's/^(import /(import (srfi 112) /' $1
+    sed -i '' 's/^(import /(import (srfi 112) /' $1
     time "${LARCENY}" --nocontract --r7rs --program "$1" < "$2"
 }
 
@@ -345,7 +343,7 @@ chibi_exec ()
 
 chicken_comp ()
 {
-    OPTS="-optimize-leaf-routines -block -inline -inline-global -specialize -O3 -d0" # ecraven added -O3
+    OPTS="-optimize-leaf-routines -block -inline -inline-global -specialize -O3" # ecraven added -O3
     ${CHICKEN_CSC} ${OPTS} $1 -o $2 # ecraven removed -extend r7rs -require-extension r7rs which is very very bad for performance
 }
 
@@ -660,19 +658,6 @@ gambitc_comp ()
 gambitc_exec ()
 {
     time "$1" < "$2"
-}
-
-# -----------------------------------------------------------------------------
-# Definitions specific to femtolisp
-
-femtolisp_comp ()
-{
-    :
-}
-
-femtolisp_exec ()
-{
-    time "${FEMTOLISP}" "$1" < "$2"
 }
 
 # -----------------------------------------------------------------------------
@@ -1062,16 +1047,6 @@ for system in $systems ; do
              COMPCOMMANDS=""
              EXECCOMMANDS=""
              ;;
-
-        femtolisp) NAME='Femtolisp'
-                   COMP=femtolisp_comp
-                   EXEC=femtolisp_exec
-                   COMPOPTS=""
-                   EXTENSION="scm"
-                   EXTENSIONCOMP="scm"
-                   COMPCOMMANDS=""
-                   EXECCOMMANDS=""
-                   ;;
 
         foment) NAME='Foment'
                 COMP=foment_comp

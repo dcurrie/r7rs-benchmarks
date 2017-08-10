@@ -14,7 +14,7 @@
 
 (define *properties* '())
 
-(define (get key1 key2)
+(define (get_ key1 key2)
   (let ((x (lookup key1 *properties*)))
     (if x
         (let ((y (lookup key2 (cdr x))))
@@ -184,7 +184,7 @@
       ((null? units))
     (do ((pats pats (cdr pats)))
         ((null? pats))
-      (do ((p (get (car units) 'pattern)
+      (do ((p (get_ (car units) 'pattern)
               (cdr p)))
           ((null? p))
         (my-match (car pats) (car p) '())))))
