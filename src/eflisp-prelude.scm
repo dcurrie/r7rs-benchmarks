@@ -9,7 +9,7 @@
 (define (current-second)
   (time.now))
 (define (this-scheme-implementation-name)
-  (string-append "femtolisp-" "unknown"))
+  (string-append "eflisp-" "unknown"))
 
 (define (round x) (truncate (if (< x 0) (- x 0.5) (+ x 0.5))))
 
@@ -45,7 +45,13 @@
        (lambda (i) (aset! v i f)))
   #t)
 ;(define (vector-map f v) (vector.map f v))
-(define vector-map vector.map)
+(define (vector-map f v)
+  (let* ((n (length v))
+         (nv (vector.alloc n)))
+    (for 0 (- n 1)
+         (lambda (i)
+           (aset! nv i (f (aref v i)))))
+    nv))
 
 (define array-ref aref)
 (define (array-set! a obj i0 . idxs)
@@ -109,6 +115,25 @@
   (string.char s (string.inc s 0 i)))
 
 (define (list->string l) (apply string l))
+
+(define-macro (do vars test-spec . commands)
+  (let ((loop (gensym))
+        (test-expr (car test-spec))
+        (vars  (map car  vars))
+        (inits (map cadr vars))
+        (steps (map (lambda (x)
+                      (if (pair? (cddr x))
+                          (caddr x)
+                          (car x)))
+                    vars)))
+    `(letrec ((,loop (lambda ,vars
+                       (if ,test-expr
+                           (begin
+                             ,@(cdr test-spec))
+                           (begin
+                             ,@commands
+                             (,loop ,.steps))))))
+       (,loop ,.inits))))
 
 (define (string->list s)
   (do ((i (sizeof s) i)
@@ -246,6 +271,11 @@
   (if (null? lst) zero
       (fold-left f (f zero (car lst)) (cdr lst))))
 
+(define (foldr f zero lst)
+  (if (null? lst) zero
+      (f (car lst) (foldr f zero (cdr lst)))))
+(define fold-right foldr)
+
 (define (partition pred lst)
   (let ((s (separate pred lst)))
     (values (car s) (cdr s))))
@@ -311,8 +341,6 @@
 (define (read-u8) (io.read *input-stream* 'uint8))
 (define modulo mod)
 
-;; -- added by e to make more of the benchmarks run...
-
 ;; -- missing expt, gcd, lcm, exact-integer?, write-string
 
 (define (square x) (* x x))
@@ -374,5 +402,3 @@
          (if (= i 20) ;; bigger than 20 is hard for factorial, good enough for accuracy
              (double sum)
              (loop (+ i 1) (+ sum term)))))))
-
-;; -- e

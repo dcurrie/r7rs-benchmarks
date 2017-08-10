@@ -2,3 +2,9 @@
 .mosh
 .cache
 outputs
+.DS_Store
+e_results
+eflisp
+flisp
+flisp.boot
+all.xlsx

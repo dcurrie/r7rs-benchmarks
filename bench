@@ -113,6 +113,7 @@ setup ()
     CHICKEN_CSC=${CHICKEN_CSC:-"csc"}
     CHICKEN_CSI=${CHICKEN_CSI:-"csi"}
     CYCLONE=${CYCLONE:-"cyclone"}
+    EFLISP=${EFLISP:-"./eflisp"}
     FEMTOLISP=${FEMTOLISP:-"./flisp"}
     FOMENT=${FOMENT:-"foment"}
     GAMBITC=${GAMBITC:-"gambitc"}
@@ -663,6 +664,19 @@ gambitc_exec ()
 }
 
 # -----------------------------------------------------------------------------
+# Definitions specific to eflisp
+
+eflisp_comp ()
+{
+    :
+}
+
+eflisp_exec ()
+{
+    time "${EFLISP}" "$1" < "$2"
+}
+
+# -----------------------------------------------------------------------------
 # Definitions specific to femtolisp
 
 femtolisp_comp ()
@@ -1062,6 +1076,16 @@ for system in $systems ; do
              COMPCOMMANDS=""
              EXECCOMMANDS=""
              ;;
+
+        eflisp) NAME='eflisp'
+                COMP=eflisp_comp
+                EXEC=eflisp_exec
+                COMPOPTS=""
+                EXTENSION="scm"
+                EXTENSIONCOMP="scm"
+                COMPCOMMANDS=""
+                EXECCOMMANDS=""
+                ;;
 
         femtolisp) NAME='Femtolisp'
                    COMP=femtolisp_comp
